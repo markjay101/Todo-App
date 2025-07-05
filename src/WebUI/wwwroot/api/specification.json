@@ -438,6 +438,10 @@
           },
           "done": {
             "type": "boolean"
+          },
+          "backgroundColour": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -450,6 +454,10 @@
             "format": "int32"
           },
           "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "backgroundColour": {
             "type": "string",
             "nullable": true
           }
@@ -469,6 +477,10 @@
           },
           "done": {
             "type": "boolean"
+          },
+          "backgroundColour": {
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -488,6 +500,10 @@
             "$ref": "#/components/schemas/PriorityLevel"
           },
           "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "backgroundColour": {
             "type": "string",
             "nullable": true
           }
@@ -589,6 +605,10 @@
             "format": "int32"
           },
           "note": {
+            "type": "string",
+            "nullable": true
+          },
+          "backgroundColour": {
             "type": "string",
             "nullable": true
           }
