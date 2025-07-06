@@ -3,6 +3,8 @@ using NUnit.Framework;
 using Todo_App.Application.Common.Exceptions;
 using Todo_App.Application.Tags.Commands.CreateTag;
 using Todo_App.Application.Tags.Commands.DeleteTag;
+using Todo_App.Application.TodoItems.Commands.CreateTodoItem;
+using Todo_App.Application.TodoLists.Commands.CreateTodoList;
 using Todo_App.Domain.Entities;
 
 namespace Todo_App.Application.IntegrationTests.Tags.Commands;
@@ -51,12 +53,12 @@ public class DeleteTagTests : BaseTestFixture
         });
 
         // Create a todo list and item
-        var listId = await SendAsync(new Todo_App.Application.TodoLists.Commands.CreateTodoList.CreateTodoListCommand
+        var listId = await SendAsync(new CreateTodoListCommand
         {
             Title = "Test List"
         });
 
-        var itemId = await SendAsync(new Todo_App.Application.TodoItems.Commands.CreateTodoItem.CreateTodoItemCommand
+        var itemId = await SendAsync(new CreateTodoItemCommand
         {
             ListId = listId,
             Title = "Test Item"
