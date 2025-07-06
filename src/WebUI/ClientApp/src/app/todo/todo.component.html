@@ -2,6 +2,41 @@
 
 <p>This is a complex todo list component.</p>
 
+<h4>Tags</h4>
+<div id="tags" class="d-flex justify-content-start gap-1 mb-2">
+  <input type="text" class="form-control tag-input-control" placeholder="tag name here..." [(ngModel)]="newTagName"
+    (keyup.enter)="createTag()">
+  <button class="btn btn-primary" (click)="createTag()" [disabled]="isCreatingTag">
+    {{ isCreatingTag ? 'Saving...' : 'Create Tag' }}
+  </button>
+</div>
+<small class="mb-1">Created Tags</small>
+  <div class="d-flex flex-wrap gap-1 align-items-center mb-4">
+    <div class="d-flex align-items-center gap-2 bg-secondary-subtle rounded-5 px-3 py-1" *ngFor="let tag of tags; index as i">
+      <!-- Display mode -->
+      <span *ngIf="selectedTag !== tag" (click)="editTag(tag, 'tagTitle' + i)" style="cursor: pointer;">{{ tag.name }}</span>
+      
+      <!-- Edit mode -->
+      <input *ngIf="selectedTag === tag" 
+             type="text" 
+             class="form-control form-control-sm" 
+             id="{{ 'tagTitle' + i }}"
+             [(ngModel)]="tag.name"
+             (keyup.enter)="updateTag(tag, true)"
+             (blur)="updateTag(tag)"
+             style="width: 100px; height: 24px; font-size: 12px;"
+             autofocus>
+      
+      <!-- Loading spinner when updating -->
+      <i *ngIf="updatingTagId === tag.id" class="bi bi-arrow-clockwise spin"></i>
+      
+      <!-- X icon when not updating -->
+       <button *ngIf="updatingTagId !== tag.id" class="btn p-0 bg-transparent border-0" (click)="deleteTag(tag)">
+          <i class="bi bi-x"></i>
+       </button>
+    </div>
+  </div>
+
 <p *ngIf="!lists"><em>Loading...</em></p>
 
 <div *ngIf="lists">
@@ -37,8 +72,47 @@
           <i class="bi bi-three-dots-vertical"></i>
         </button>
       </div>
+      
+      <!-- Most used tags shortcuts -->
+      
+
+      <!-- Tag filtering section -->
+      <div class="mb-3">
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <small class="text-muted">Filter by tags:</small>
+          <button *ngIf="selectedFilterTags.length > 0" 
+                  class="btn btn-sm btn-outline-secondary" 
+                  (click)="clearTagFilters()">
+            Clear filters
+          </button>
+        </div>
+        <div class="mb-3" *ngIf="getMostUsedTags().length > 0">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <small class="text-muted"><i class="bi bi-star-fill"></i> Most used:</small>
+          </div>
+          <div class="d-flex flex-wrap gap-1">
+            <span *ngFor="let tag of getMostUsedTags()" class="badge"
+              [ngClass]="isTagInFilter(tag) ? 'bg-warning' : 'bg-light text-dark'"
+              style="cursor: pointer; font-size: 0.8rem; border: 1px solid #dee2e6;" (click)="toggleTagFilter(tag)">
+              {{ tag.name }}
+            </span>
+          </div>
+        </div>
+        <div class="mb-2">
+          <small class="text-muted"><i class="bi bi-info-circle"></i> Select tag to filter</small>
+        </div>
+        <div class="d-flex flex-wrap gap-1">
+          <span *ngFor="let tag of getAvailableTagsInList()" 
+                class="badge" 
+                [ngClass]="isTagInFilter(tag) ? 'bg-primary' : 'bg-secondary'"
+                style="cursor: pointer; font-size: 0.8rem;"
+                (click)="toggleTagFilter(tag)">
+            {{ tag.name }}
+          </span>
+        </div>
+      </div>
       <ul id="todo-items" class="list-group mb-2">
-        <li class="list-group-item" *ngFor="let item of selectedList.items; index as i" [style.background-color]="item.backgroundColour">
+        <li class="list-group-item" *ngFor="let item of getFilteredItems(); index as i" [style.background-color]="item.backgroundColour">
           <div class="d-flex">
             <div class="todo-item-checkbox">
               <input type="checkbox" [(ngModel)]="item.done" (change)="updateItem(item)" />
@@ -51,6 +125,16 @@
                 (click)="editItem(item, 'itemTitle' + i)" class="form-control item-input-control">
                 <span>{{ item.title }}</span>
               </div>
+              
+              <!-- Show assigned tags -->
+              <div class="assigned-tags mt-1" *ngIf="item.tags && item.tags.length > 0">
+                <small class="text-muted">Tags: </small>
+                <span *ngFor="let tag of item.tags" class="badge bg-primary me-1" style="font-size: 0.7rem;">
+                  {{ tag.name }}
+                </span>
+              </div>
+              
+
             </div>
             <div class="todo-item-commands">
               <button *ngIf="item.id != 0" (click)="showItemDetailsModal(itemDetailsModalTemplate, item)"
@@ -132,6 +216,41 @@
         <select class="form-control" id="backgroundColour" formControlName="backgroundColour">
           <option *ngFor="let color of supportedColors" [value]="color.value">{{ color.name }}</option>
         </select>
+      </div>
+      <div class="form-group">
+        <label for="tags">Tags</label>
+        <div class="mb-2">
+          <input type="text" class="form-control form-control-sm" 
+                 placeholder="Search tags..." 
+                 [(ngModel)]="tagSearchText"
+                 [ngModelOptions]="{standalone: true}"
+                 (input)="filterTags()">
+        </div>
+        <div class="tag-selection-container" style="max-height: 200px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.375rem; padding: 0.5rem;">
+          <div *ngFor="let tag of filteredTags" class="form-check">
+            <input class="form-check-input" type="checkbox" 
+                   [id]="'tag-' + tag.id"
+                   [checked]="isTagAssignedToItem(selectedItem, tag)"
+                   (change)="assignTag(tag.id, selectedItem.id)">
+            <label class="form-check-label" [for]="'tag-' + tag.id">
+              {{ tag.name }}
+            </label>
+          </div>
+          <div *ngIf="filteredTags.length === 0" class="text-muted small">
+            No tags found
+          </div>
+        </div>
+        
+        <!-- Show assigned tags as badges -->
+        <div class="mt-2" *ngIf="selectedItem.tags && selectedItem.tags.length > 0">
+          <small class="text-muted">Assigned tags:</small>
+          <div class="mt-1">
+            <span *ngFor="let tag of selectedItem.tags" 
+                  class="badge bg-primary me-1 mb-1">
+              {{ tag.name }}
+            </span>
+          </div>
+        </div>
       </div>
     </form>
     <div *ngIf="debug">
