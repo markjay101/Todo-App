@@ -30,6 +30,8 @@ public class ApplicationDbContext : ApiAuthorizationDbContext<ApplicationUser>, 
     public DbSet<TodoList> TodoLists => Set<TodoList>();
 
     public DbSet<TodoItem> TodoItems => Set<TodoItem>();
+    public DbSet<Tag> Tags => Set<Tag>();
+    public DbSet<TodoItemTag> TodoItemTags => Set<TodoItemTag>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -36,3 +36,44 @@
 .modal-footer {
   display: block;
 }
+
+#tags .tag-input-control{
+  max-width: 200px;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Tag dropdown styling
+.dropdown-item {
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #f8f9fa;
+}
+
+.dropdown-item.bg-primary:hover {
+  background-color: #0056b3 !important;
+}
+
+// Tag badges in dropdown
+.badge .bi-x {
+  font-size: 0.75rem;
+}
+
+.badge .bi-x:hover {
+  color: #fff;
+  opacity: 0.8;
+}
+

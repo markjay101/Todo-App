@@ -3,6 +3,7 @@ using Todo_App.Application.Common.Exceptions;
 using Todo_App.Application.Common.Interfaces;
 using Todo_App.Domain.Entities;
 using Todo_App.Domain.Enums;
+using Todo_App.Domain.ValueObjects;
 
 namespace Todo_App.Application.TodoItems.Commands.UpdateTodoItemDetail;
 
@@ -15,6 +16,8 @@ public record UpdateTodoItemDetailCommand : IRequest
     public PriorityLevel Priority { get; init; }
 
     public string? Note { get; init; }
+
+    public string? BackgroundColour { get; init; }
 }
 
 public class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItemDetailCommand>
@@ -39,6 +42,11 @@ public class UpdateTodoItemDetailCommandHandler : IRequestHandler<UpdateTodoItem
         entity.ListId = request.ListId;
         entity.Priority = request.Priority;
         entity.Note = request.Note;
+
+        if (!string.IsNullOrEmpty(request.BackgroundColour))
+        {
+            entity.BackgroundColour = Colour.From(request.BackgroundColour);
+        }
 
         await _context.SaveChangesAsync(cancellationToken);
 
