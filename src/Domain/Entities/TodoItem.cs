@@ -1,4 +1,6 @@
-﻿namespace Todo_App.Domain.Entities;
+﻿using Todo_App.Domain.ValueObjects;
+
+namespace Todo_App.Domain.Entities;
 
 public class TodoItem : BaseAuditableEntity
 {
@@ -11,6 +13,8 @@ public class TodoItem : BaseAuditableEntity
     public PriorityLevel Priority { get; set; }
 
     public DateTime? Reminder { get; set; }
+
+    public Colour BackgroundColour { get; set; } = Colour.White;
 
     private bool _done;
     public bool Done
