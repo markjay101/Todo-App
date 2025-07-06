@@ -16,6 +16,8 @@ public class TodoItem : BaseAuditableEntity
 
     public Colour BackgroundColour { get; set; } = Colour.White;
 
+    public bool IsDeleted { get; set; }
+
     private bool _done;
     public bool Done
     {

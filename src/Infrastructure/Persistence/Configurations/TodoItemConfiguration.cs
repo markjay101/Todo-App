@@ -17,5 +17,7 @@ public class TodoItemConfiguration : IEntityTypeConfiguration<TodoItem>
 
         builder
             .OwnsOne(b => b.BackgroundColour);
+
+        builder.HasQueryFilter(t => !t.IsDeleted);
     }
 }

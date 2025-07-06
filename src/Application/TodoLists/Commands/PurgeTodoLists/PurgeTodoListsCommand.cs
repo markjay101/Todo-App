@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Todo_App.Application.Common.Interfaces;
 using Todo_App.Application.Common.Security;
 
@@ -19,7 +20,15 @@ public class PurgeTodoListsCommandHandler : IRequestHandler<PurgeTodoListsComman
 
     public async Task<Unit> Handle(PurgeTodoListsCommand request, CancellationToken cancellationToken)
     {
-        _context.TodoLists.RemoveRange(_context.TodoLists);
+        var entities = await _context.TodoLists
+        .Where(t => !t.IsDeleted)
+        .ToListAsync(cancellationToken);
+
+        // For testing purposes, I didn't use any third-party libraries for bulk updating to keep it simple and focus on functionality.
+        foreach (var t in entities)
+        {
+            t.IsDeleted = true;
+        }
 
         await _context.SaveChangesAsync(cancellationToken);
 
